@@ -1,0 +1,132 @@
+#! /bin/bash
+#
+#
+
+CONTAINER='[flywheel/bxh-xcede-tools-qa]'
+echo -e "$CONTAINER  running..."
+
+##############################################################################
+# Configure paths
+
+FLYWHEEL_BASE=/flywheel/v0
+OUTPUT_DIR=$FLYWHEEL_BASE/output
+INPUT_DIR=$FLYWHEEL_BASE/input/fmri_dicom_input
+CONFIG_FILE=$FLYWHEEL_BASE/config.json
+
+# Configure ENV
+export PATH=$PATH:/opt/bxh_xcede_tools-1.11.14-lsb30.x86_64/bin
+
+##############################################################################
+# Parse configuration
+
+# If the config file does not exist (i.e., local run) then parse the config
+# options and values from the manifest. This process will result in a number of
+# ENV vars being cast from the manifest.json or config.json file. Those variables
+# can be found in the manifest.json file within the `config` map. They are ref/
+# listed here (with 'config' prefixed) for clarity.
+#
+# If config.json exists, then we parse config file and cast vals to ENV Vars
+# (Flywheel gear run). Otherwise we parse manifest.json and cast the values to
+# ENV Vars from manifest (note value.default is used to grab the configured
+# defaults)
+
+if [[ -f $CONFIG_FILE ]]; then
+  eval $(jq -r '.config | to_entries[] | "config_\(.key)=\(.value)"' $CONFIG_FILE)
+else
+  CONFIG_FILE=$FLYWHEEL_BASE/manifest.json
+  eval $(jq -r '.config | to_entries[] | "config_\(.key)=\(.value.default)"' $CONFIG_FILE)
+fi
+
+##############################################################################
+# Handle INPUT.
+
+# The input to this Gear can be either a zip, a tgz, or a mounted volume
+# containing DICOMs. Below we handle all those cases.
+
+input_file=$(find $INPUT_DIR/* -not -path '*/\.*' -type f | head -1)
+dicom_input=''
+
+if [[ -z "$input_file" ]] ; then
+  echo -e "$CONTAINER No input file was found!"
+  exit 1
+fi
+
+# Prepare inputs: unzip, gunzip, or uncompressed
+if [[ "$input_file" == *.zip ]] ; then
+
+  echo "$CONTAINER  Unzipping $input_file"
+  unzip -q "$input_file" -d $INPUT_DIR
+
+  # Find unzipped directory in input dir
+  dicom_input=$(find $INPUT_DIR/* -not -path '*/\.*' -type d | head -1)
+
+  # Zip bomb: Set dicom_input to INPUT_DIR
+  if [[ -z "$dicom_input" ]]; then
+    dicom_input=$INPUT_DIR
+  fi
+
+elif [[ "$input_file" == *.gz ]]; then
+  cd $INPUT_DIR
+  echo "$CONTAINER  Gunzipping $input_file"
+  gunzip -q "$input_file"
+  dicom_input=$(basename "$input_file" .gz)
+
+else
+  # Assume a directory containing DICOMs was mounted in and pass it on (local docker execution)
+  dicom_input=$INPUT_DIR
+fi
+
+
+##############################################################################
+# Sanitize dicom_input name
+
+# Remove '.dicom' from dicom_input (if it's a directory) for output filename.
+# Otherwise with default behavior (including the input folder in the output
+# filename) we have a '.dicom.nii.gz' extension, which is silly.
+
+if [[ -d "$dicom_input" ]]; then
+  NEW_DIR=$(dirname "$dicom_input")/$(basename "$dicom_input" .dicom)
+  if [[ "$dicom_input" != "$NEW_DIR" ]]; then
+    mv "$dicom_input" "$NEW_DIR"
+    dicom_input="$NEW_DIR"
+  fi
+fi
+
+##############################################################################
+# Run the algorithm
+
+echo "$CONTAINER  Converting DICOM files..."
+bxh_out="$INPUT_DIR"/output.bxh
+dicom2bxh "$dicom_input"/* "$bxh_out"
+dicom2bxh_exit_code=$?
+
+# RUN fmriqa
+if [[ $dicom2bxh_exit_code == 0 ]]; then
+
+  echo "$CONTAINER  Running fMRI QA..."
+  fmriqa_output=$OUTPUT_DIR/fmriqa
+  fmriqa_generate.pl "$bxh_out" "$fmriqa_output"
+
+  if [[ $? == 0 ]]; then
+    echo "$CONTAINER  generating output html..."
+    # Convert index to standalone index
+    output_html_file="${OUTPUT_DIR}"/`basename "$dicom_input"`_fmriqa.qa.html
+    python /opt/webpage2html/webpage2html.py "$fmriqa_output"/index.html > "$output_html_file"
+
+    # Create a zip archive from the output
+    cd ${OUTPUT_DIR}
+    zip -r `basename "$dicom_input"`_fmriqa.zip fmriqa
+    rm -rf "$fmriqa_output"
+    echo "$CONTAINER  Done!"
+    exit 0
+  else
+    echo "$CONTAINER  fmriqa_generate.pl failed to run!"
+    exit 1
+  fi
+
+else
+  echo "$CONTAINER  dicom2bxh failed to convert DICOM files!"
+  exit 1
+fi
+
+exit 0

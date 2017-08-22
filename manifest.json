@@ -1,0 +1,26 @@
+{
+  "name": "bhx-xcede-tools-qa",
+  "label": "BHX-XCEDE-TOOLS: QA (v1.11.14-lsb30.x86_64)",
+  "description": "",
+  "author": "",
+  "url": "",
+  "source": "",
+  "license": "Other",
+  "flywheel": "0",
+  "version": "0.1",
+  "config": {},
+  "inputs": {
+    "fmri_dicom_input": {
+      "description": "Input file for bxh-xcede-tools-qa. This can be either a DICOM archive ('.dicom.zip'), or a folder of DICOM files (gzipped or not, e.g., 'IM0001.gz', 'IM0001')",
+      "base": "file",
+      "type": {
+        "enum": [
+          "dicom"
+        ]
+      }
+    }
+  },
+  "custom": {
+    "docker-image": "flywheel/bxh-xcede-tools-qa"
+  }
+}
