@@ -21,6 +21,6 @@
     }
   },
   "custom": {
-    "docker-image": "flywheel/bxh-xcede-tools-qa"
+    "docker-image": "flywheel/bxh-xcede-tools-qa:v0.1"
   }
 }
