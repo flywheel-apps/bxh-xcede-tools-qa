@@ -1,4 +1,4 @@
-# Creates docker container that runs bhx-xcede tools
+# Creates docker container that runs bxh-xcede-tools fmriqa algorithms
 #
 #
 
@@ -6,6 +6,7 @@
 FROM neurodebian:xenial
 MAINTAINER Flywheel <support@flywheel.io>
 
+# Add non-free sources
 RUN echo deb http://neurodeb.pirsquared.org data main contrib non-free >> /etc/apt/sources.list.d/neurodebian.sources.list
 RUN echo deb http://neurodeb.pirsquared.org xenial main contrib non-free >> /etc/apt/sources.list.d/neurodebian.sources.list
 
@@ -18,17 +19,16 @@ RUN apt-get update \
     unzip \
     gzip \
     curl \
-    git \
     jq \
     python-pip
 
-# Download bhx-xcede tools
+# Download/install bhx-xcede tools
 ENV VERSION=bxh_xcede_tools-1.11.14-lsb30.x86_64
 ENV LINK=https://www.nitrc.org/frs/download.php/10144/${VERSION}.tgz
 RUN curl -#L  $LINK | bsdtar -xf- -C /opt/
 ENV PATH=$PATH:/opt/${VERSION}/bin
 
-# Install webpage2html
+# Download/Install webpage2html
 ENV COMMIT=4dec20eba862335aaf1718d04b313bdc96e7dc8e
 ENV URL=https://github.com/zTrix/webpage2html/archive/$COMMIT.zip
 RUN curl -#L  $URL | bsdtar -xf- -C /opt/
@@ -40,10 +40,8 @@ RUN pip install -r webpage2html/requirements.txt
 ENV FLYWHEEL /flywheel/v0
 WORKDIR ${FLYWHEEL}
 
-# Add executables
+# Copy executable/manifest to Gear
 COPY run ${FLYWHEEL}/run
-
-# Add manifest
 COPY manifest.json ${FLYWHEEL}/manifest.json
 
 # Configure entrypoint

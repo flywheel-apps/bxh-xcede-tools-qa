@@ -3,7 +3,7 @@
 #
 
 CONTAINER='[flywheel/bxh-xcede-tools-qa]'
-echo -e "$CONTAINER  running..."
+echo -e "$CONTAINER  Running..."
 
 ##############################################################################
 # Configure paths
@@ -13,7 +13,7 @@ OUTPUT_DIR=$FLYWHEEL_BASE/output
 INPUT_DIR=$FLYWHEEL_BASE/input/fmri_dicom_input
 CONFIG_FILE=$FLYWHEEL_BASE/config.json
 
-# Configure ENV
+# Configure PATH
 export PATH=$PATH:/opt/bxh_xcede_tools-1.11.14-lsb30.x86_64/bin
 
 ##############################################################################
@@ -95,35 +95,52 @@ fi
 ##############################################################################
 # Run the algorithm
 
+# Convert the DICOM archive to bxh format
 echo "$CONTAINER  Converting DICOM files..."
 bxh_out="$INPUT_DIR"/output.bxh
 dicom2bxh "$dicom_input"/* "$bxh_out"
 dicom2bxh_exit_code=$?
 
-# RUN fmriqa
+# On successful conversion, run the fmriqa algorithm
 if [[ $dicom2bxh_exit_code == 0 ]]; then
 
-  echo "$CONTAINER  Running fMRI QA..."
-  fmriqa_output=$OUTPUT_DIR/fmriqa
-  fmriqa_generate.pl "$bxh_out" "$fmriqa_output"
+  # Run the BIRN Phantom QA
+  if [[ $config_birn_phatom == 'true' ]]; then
+    echo "$CONTAINER  Running BIRN PHANTOM QA..."
+    fmriqa_output=$OUTPUT_DIR/fmriqa
+    fmriqa_phantomqa.pl "$bxh_out" "$fmriqa_output"
 
+  # Run the Human fMRI QA
+  else
+    echo "$CONTAINER  Running fMRI QA..."
+    fmriqa_output=$OUTPUT_DIR/fmriqa
+    fmriqa_generate.pl "$bxh_out" "$fmriqa_output"
+  fi
+
+  # Upon success, convert index, zip output and exit
   if [[ $? == 0 ]]; then
-    echo "$CONTAINER  generating output html..."
-    # Convert index to standalone index
-    output_html_file="${OUTPUT_DIR}"/`basename "$dicom_input"`_fmriqa.qa.html
-    python /opt/webpage2html/webpage2html.py "$fmriqa_output"/index.html > "$output_html_file"
 
-    # Create a zip archive from the output
-    cd ${OUTPUT_DIR}
-    zip -r `basename "$dicom_input"`_fmriqa.zip fmriqa
+    # Convert index to standalone index
+    echo "$CONTAINER  generating output html..."
+    output_html_file="${OUTPUT_DIR}"/`basename "$dicom_input"`_fmriqa.qa.html
+    python /opt/webpage2html/webpage2html.py -q -s "$fmriqa_output"/index.html > "$output_html_file"
+
+    ## Create a zip archive from the output
+    #cd ${OUTPUT_DIR}
+    #zip -r -q `basename "$dicom_input"`_fmriqa.zip fmriqa
+
+    # Clean up
     rm -rf "$fmriqa_output"
     echo "$CONTAINER  Done!"
     exit 0
+
+  # QA failed, exit.
   else
-    echo "$CONTAINER  fmriqa_generate.pl failed to run!"
+    echo "$CONTAINER  fmriqa failed to run!"
     exit 1
   fi
 
+# dicom2bxh DICOM conversion failed, exit.
 else
   echo "$CONTAINER  dicom2bxh failed to convert DICOM files!"
   exit 1
