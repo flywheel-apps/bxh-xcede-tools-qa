@@ -10,14 +10,14 @@
   "version": "0.1",
   "config": {
     "birn_phantom": {
-      "description": "This determines if the Phantom QA algorithm (fmriqa_phantomqa.pl) should be run instead of the default Human fMRI QA algorithm (fmriqa_generate.pl)",
+      "description": "This determines if the Phantom QA algorithm (fmriqa_phantomqa.pl) should be run instead of the default Human fMRI QA algorithm (fmriqa_generate.pl). [Default=false]",
       "type": "boolean",
       "default": false
     }
   },
   "inputs": {
     "fmri_dicom_input": {
-      "description": "Input file for bxh-xcede-tools-qa. This can be either a DICOM archive ('.dicom.zip'), or a folder of DICOM files, or an enhanced DICOM image (gzipped or not, e.g., 'IM0001.gz', 'IM0001')",
+      "description": "Input file for bxh-xcede-tools-qa. This can be either a DICOM archive ('.dicom.zip'), or a folder of DICOM files, or an enhanced DICOM image (gzipped or not, e.g., 'IM0001.gz', 'IM0001').",
       "base": "file",
       "type": {
         "enum": [
