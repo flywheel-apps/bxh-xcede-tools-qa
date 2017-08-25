@@ -126,8 +126,9 @@ if [[ $dicom2bxh_exit_code == 0 ]]; then
     python /opt/webpage2html/webpage2html.py -q -s "$fmriqa_output"/index.html > "$output_html_file"
 
     ## Create a zip archive from the output
+    #cd "$fmriqa_output"
+    #zip -r -q ${OUTPUT_DIR}/`basename "$dicom_input"`_fmriqa.html.zip *
     #cd ${OUTPUT_DIR}
-    #zip -r -q `basename "$dicom_input"`_fmriqa.zip fmriqa
 
     # Clean up
     rm -rf "$fmriqa_output"
