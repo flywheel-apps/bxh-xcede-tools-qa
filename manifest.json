@@ -8,7 +8,10 @@
   "source": "https://github.com/flywheel-apps/bxh-xcede-tools-qa/",
   "license": "Other",
   "flywheel": "0",
-  "version": "0.1",
+  "version": "0.2.0",
+  "custom": {
+    "docker-image": "flywheel/bxh-xcede-tools-qa:0.2.0"
+  },
   "config": {
     "birn_phantom": {
       "description": "This determines if the Phantom QA algorithm (fmriqa_phantomqa.pl) should be run instead of the default Human fMRI QA algorithm (fmriqa_generate.pl). [Default=false]",
@@ -26,8 +29,5 @@
         ]
       }
     }
-  },
-  "custom": {
-    "docker-image": "flywheel/bxh-xcede-tools-qa:v0.1"
   }
 }
