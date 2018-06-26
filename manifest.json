@@ -8,9 +8,9 @@
   "source": "https://github.com/flywheel-apps/bxh-xcede-tools-qa/",
   "license": "Other",
   "flywheel": "0",
-  "version": "1.0.0_1.11.14",
+  "version": "1.0.1_1.11.14",
   "custom": {
-    "docker-image": "flywheel/bxh-xcede-tools-qa:1.0.0_1.11.14"
+    "docker-image": "flywheel/bxh-xcede-tools-qa:1.0.1_1.11.14"
   },
   "config": {
     "birn_phantom": {

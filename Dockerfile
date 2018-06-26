@@ -37,6 +37,8 @@ WORKDIR /opt
 RUN mv webpage2html-$COMMIT webpage2html
 RUN pip install -r webpage2html/requirements.txt
 
+RUN mkdir /usr/share/fonts/default && ln -s /usr/share/fonts/type1/gsfonts /usr/share/fonts/default/Type1
+
 # Make directory for flywheel spec (v0)
 ENV FLYWHEEL /flywheel/v0
 WORKDIR ${FLYWHEEL}
