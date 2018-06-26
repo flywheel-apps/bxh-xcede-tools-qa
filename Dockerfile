@@ -20,7 +20,8 @@ RUN apt-get update \
     gzip \
     curl \
     jq \
-    python-pip
+    python-pip \
+    afni
 
 # Download/install bhx-xcede tools
 ENV VERSION=bxh_xcede_tools-1.11.14-lsb30.x86_64
@@ -42,6 +43,7 @@ WORKDIR ${FLYWHEEL}
 
 # Copy executable/manifest to Gear
 COPY run ${FLYWHEEL}/run
+COPY stat_metadata.py ${FLYWHEEL}/stat_metadata.py
 COPY manifest.json ${FLYWHEEL}/manifest.json
 
 # Configure entrypoint
