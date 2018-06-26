@@ -21,7 +21,7 @@
     "save_qa_stats": {
       "description": "Save qa_stats.json files, which contains qa measures featured in the HTML output report. [Default=false]",
       "type": "boolean",
-      "default": true
+      "default": false
     },
     "save_zip": {
       "description": "Save all outputs in a zip archive. [Default=false]",

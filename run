@@ -135,9 +135,9 @@ if [[ $bxh_convert_exit_code == 0 ]]; then
     ## Preserve qa json outputs
     if [[ "$config_save_qa_stats" == "true" ]]; then
       echo "$CONTAINER  Saving qa_stats output..."
-      cp -v "$fmriqa_output"/json/qa_stats*.json $OUTPUT_DIR/$(basename $fmri_input)_qa_stats.qa.json
-      cp -v "$fmriqa_output"/json/qa_scalarstats*.json $OUTPUT_DIR/$(basename $fmri_input)_qa_scalarstats.qa.json
-      cp -v "$fmriqa_output"/json/qa_imagerefs*.json $OUTPUT_DIR/qa_imagerefs_$(basename $fmri_input)_qa_imagerefs.qa.json
+      cp "$fmriqa_output"/json/qa_stats*.json $OUTPUT_DIR/$(basename $fmri_input)_qa_stats.qa.json
+      cp "$fmriqa_output"/json/qa_scalarstats*.json $OUTPUT_DIR/$(basename $fmri_input)_qa_scalarstats.qa.json
+      cp "$fmriqa_output"/json/qa_imagerefs*.json $OUTPUT_DIR/qa_imagerefs_$(basename $fmri_input)_qa_imagerefs.qa.json
     fi
 
     if [[ "$config_save_zip" == "true" ]]; then

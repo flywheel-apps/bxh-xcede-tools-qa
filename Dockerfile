@@ -21,8 +21,7 @@ RUN apt-get update \
     curl \
     jq \
     python-pip \
-    afni \
-    python
+    afni
 
 # Download/install bhx-xcede tools
 ENV VERSION=bxh_xcede_tools-1.11.14-lsb30.x86_64
