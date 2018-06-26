@@ -45,11 +45,11 @@ def metadata_gen(config_file, qa_stats_file):
             with open(config_file) as config_f:
                 config = json.load(config_f, strict=False)
             try:
-                classification = config['inputs']['fmri_dicom_input']['object']['classification']
+                classification = config['inputs']['fmri_input']['object']['classification']
             except:
                 log.info('  Cannot determine classification from config.json.')
             try:
-                modality = config['inputs']['fmri_dicom_input']['object']['modality']
+                modality = config['inputs']['fmri_input']['object']['modality']
             except:
                 log.info('  Cannot determine modality from config.json.')
         else:
