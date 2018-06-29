@@ -152,7 +152,7 @@ if [[ $bxh_convert_exit_code == 0 ]]; then
     qa_file=$(find "$fmriqa_output"/json/* -name "qa_scalarstats*.json")
     if [[ -f "${qa_file}" ]]; then
       echo -e "$CONTAINER  generating file info from ${qa_file}"
-      ${FLYWHEEL_BASE}/stat_metadata.py "${config_file}" "${qa_file}"
+      ${FLYWHEEL_BASE}/stat_metadata.py "${CONFIG_FILE}" "${qa_file}"
     else
       echo -e "$CONTAINER  no QA stats file could be found! Not generating file info."
     fi
